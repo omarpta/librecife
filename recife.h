@@ -8,7 +8,7 @@
  *        |_|  \_\______\_____|_____|_|    |______|
  *
  *
- * Request Creation Interface
+ * Request Creation Interface - RECIFE
  * Copyright (C) 2015, Omar Torres, <omar@analista.io>, et al.
  *
  * This software is licensed as described in the file COPYING, which
@@ -30,13 +30,26 @@
 #include <curl/curl.h>
 #include <nvlist.h> 
 
+typedef struct recife_form {
+	char *method;
+	char *action;
+	char *fields;
+	char *buttons;
+} RECForm;
+
+typedef struct recife_user_agent {
+	char *name;
+	char *version;
+	char *os_name;
+} RECUser_agent;
 
 typedef struct recife {
 	CURL *curl;
 	CURLcode curl_res;
 	nvlist *form_fields;
+	char *content;
+	RECIFE_user_agent *user_agent;
 	
-} RECIFE;
+} REC;
 
-extern 
 #endif /* HEADER_RECIFE_H */

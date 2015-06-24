@@ -8,7 +8,7 @@
  *        |_|  \_\______\_____|_____|_|    |______|
  *
  *
- *
+ * Request Creation Interface - RECIFE
  * Copyright (C) 2015, Omar Torres, <omar@analista.io>, et al.
  *
  * This software is licensed as described in the file COPYING, which
@@ -30,4 +30,3 @@
 #include <curl/curl.h>
 
 
-void s
