@@ -30,14 +30,16 @@
 #include <curl/curl.h>
 #include <nvlist.h> 
 
-typedef struct recife_form {
+typedef void RECIFE;
+
+typedef struct {
 	char *method;
 	char *action;
 	char *fields;
 	char *buttons;
 } RECForm;
 
-typedef struct recife_user_agent {
+typedef struct {
 	char *name;
 	char *version;
 	char *os_name;
@@ -48,8 +50,10 @@ typedef struct recife {
 	CURLcode curl_res;
 	nvlist *form_fields;
 	char *content;
-	RECIFE_user_agent *user_agent;
+	RECUser_agent *user_agent;
 	
 } REC;
+
+
 
 #endif /* HEADER_RECIFE_H */
