@@ -30,7 +30,19 @@
 #include <curl/curl.h>
 #include <nvlist.h> 
 
-typedef void RECIFE;
+//#define REC_CHROME
+
+enum user_agents {CHROME_LINUX, CHROME_WINDOWS, FIREFOX_LINUX, FIREFOX_WINDOWS, INTERNET_EXPLORER};
+typedef enum user_agents user_agent;
+
+enum navitate_codes {RECIFE_COMPLETE, RECIFE_ERROR};
+typedef enum navitate_codes navigate_code;
+
+
+typedef struct {
+    char* ptr;
+    size_t len;
+} RECcontent;
 
 typedef struct {
 	char *method;
@@ -45,15 +57,24 @@ typedef struct {
 	char *os_name;
 } RECUser_agent;
 
-typedef struct recife {
+typedef struct {
 	CURL *curl;
 	CURLcode curl_res;
-	nvlist *form_fields;
-	char *content;
-	RECUser_agent *user_agent;
-	
+	nvlist *headers;
+	RECUser_agent *agent;
+	RECcontent content;
+    struct curl_slist* curl_headers;
 } REC;
 
+typedef void RECIFE;
 
+
+extern RECIFE *recife_init(user_agent agent);
+
+extern navigate_code recife_navigate(RECIFE *recife, const char* url);
+
+extern char* recife_get_content(RECIFE *recife);
+
+extern void recife_free(RECIFE *recife);
 
 #endif /* HEADER_RECIFE_H */
