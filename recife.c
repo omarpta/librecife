@@ -59,9 +59,23 @@ static size_t writefunc(void* ptr, size_t size, size_t nmemb, RECcontent* s)
 
 static const char *get_user_agent(user_agent agent) {
     switch (agent) {
-        case CHROME_LINUX:
-            return "Linux - Mozilla/5.0 (Linux; Android 5.0; LG-D855 Build/LRX21R) AppleWebKit/537.36 (KHTML, "
-						   "like Gecko) Chrome/43.0.2357.93 Mobile Safari/537.36";
+		case AVANT_BROWSER_WINDOWS:
+			return "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0; Trident/4.0; Avant Browser; SLCC1; .NET CLR 2.0.50727; Media Center PC 5.0; .NET CLR 3.0.04506; .NET CLR 3.5.21022; InfoPath.2)";
+			break;
+		case SAFARI_MACOS:
+			return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/7046A194A";
+			break;
+		case OPERA_LINUX:
+			return "Opera/9.80 (X11; Linux i686; Ubuntu/14.10) Presto/2.12.388 Version/12.16";
+			break;
+		case CHROME_LINUX:
+			return "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36";
+			break;
+		case INTERNET_EXPLORER:
+			return "Mozilla/5.0 (compatible, MSIE 11, Windows NT 6.3; Trident/7.0;  rv:11.0) like Gecko";
+			break;
+        case CHROME_ANDROID:
+            return "Linux - Mozilla/5.0 (Linux; Android 5.0; LG-D855 Build/LRX21R) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.93 Mobile Safari/537.36";
             break;
             
         default:
@@ -110,19 +124,23 @@ static REC *get_recife(RECIFE *recife) {
 }
 
 static char *get_host(const char* url) {
-    get_regex_group(url, "https?:\\/\\/(.*?)(\\/)", 1);
-    
+	if (strstr(url, "http://") != NULL || strstr(url, "https://") != NULL) {
+		return get_regex_group(url, "https?:\\/\\/(.*?)(\\/)", 1);
+	} else if (strstr(url, "/") != NULL) {
+		return get_regex_group(url, "(.*?)(\\/)", 1);
+	} else {
+		char *urldup = strdup(url);
+		return urldup;
+	}
 }
 
 
 
 RECIFE *recife_init(user_agent agent) {
     //#### BEGIN DEBUG SPACE ####
-    printf("%s", get_host("https://portal.fitec.org.br/corpore.net/teste/Login.aspx"));
-    
-    exit(0);
-    
-    
+
+	//exit(0);
+
     //#### END DEBUG SPACE ####
     
     
@@ -139,11 +157,10 @@ RECIFE *recife_init(user_agent agent) {
     rec->curl_headers = NULL;
     
     rec->curl_headers = curl_slist_set_value(rec->curl_headers, "Accept:", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-    rec->curl_headers = curl_slist_set_value(rec->curl_headers, "Host:", "portal.fitec.org.br");
     rec->curl_headers = curl_slist_set_value(rec->curl_headers, "Connection:", "keep-alive");
     
     curl_easy_setopt(rec->curl, CURLOPT_USERAGENT, get_user_agent(agent));
-    curl_easy_setopt(rec->curl, CURLOPT_VERBOSE, 1L);
+    //curl_easy_setopt(rec->curl, CURLOPT_VERBOSE, 1L);
     curl_easy_setopt(rec->curl, CURLOPT_TCP_KEEPALIVE, 1L);
     curl_easy_setopt(rec->curl, CURLOPT_SSL_VERIFYPEER, 0);
     curl_easy_setopt(rec->curl, CURLOPT_SSL_VERIFYHOST, 0);
@@ -159,6 +176,11 @@ RECIFE *recife_init(user_agent agent) {
 
 navigate_code recife_navigate(RECIFE *recife, const char* url) {
     REC *rec = get_recife(recife);
+	
+	char *host = get_host(url);
+	rec->host = host;
+	rec->curl_headers = curl_slist_set_value(rec->curl_headers, "Host:", rec->host);
+	
     curl_easy_setopt(rec->curl, CURLOPT_URL, url);
     rec->curl_res = curl_easy_perform(rec->curl);
     if(rec->curl_res != CURLE_OK) {
@@ -181,6 +203,8 @@ void recife_free(RECIFE *recife) {
     REC *rec = get_recife(recife);
     curl_easy_cleanup(rec->curl);
     curl_slist_free_all(rec->curl_headers);
+	free(rec->content.ptr);
+	free(rec->host);
     free(rec);
 
 }

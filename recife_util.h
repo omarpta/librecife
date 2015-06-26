@@ -13,4 +13,4 @@ static int compile_regex (regex_t * r, const char * regex_text);
 
 static int match_regex (regex_t * r, const char * to_match);
 
-const char* get_regex_group(const char *text, const char *regex, int group);
+char* get_regex_group(const char *text, const char *regex, int group);

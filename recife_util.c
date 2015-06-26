@@ -62,7 +62,7 @@ static int match_regex (regex_t * r, const char * to_match)
     return 0;
 }
 
-const char* get_regex_group(const char *text, const char *regex, int group) {
+char* get_regex_group(const char *text, const char *regex, int group) {
     //regex_t r;
 
     //compile_regex(& r, regex);
@@ -73,7 +73,7 @@ const char* get_regex_group(const char *text, const char *regex, int group) {
     int   rc;
     int   i;
     int   ovector[100];
-    char *found;
+    char *found = NULL;
 
 
     re = pcre_compile (regex,          /* the pattern */
@@ -84,26 +84,35 @@ const char* get_regex_group(const char *text, const char *regex, int group) {
     if (!re)
     {
         printf("pcre_compile failed (offset: %d), %s\n", erroffset, error);
-        return -1;
+        return NULL;
     }
 
     unsigned int offset = 0;
     unsigned int len    = strlen(text);
     while (offset < len && (rc = pcre_exec(re, 0, text, len, offset, 0, ovector, sizeof(ovector))) >= 0)
     {
-        printf("while\n");
+        //printf("while\n");
         for(int i = 0; i < rc; ++i)
         {
-            printf("for\n");
-            printf("%2d: %.*s\n", i, ovector[2*i+1] - ovector[2*i], text + ovector[2*i]);
-            //if (i == group)
-                
+			//printf("%2d - %.*s\n",i,ovector[2*i+1] - ovector[2*i],text + ovector[2*i]);
+			if (i == group) {
+				
+				int lencpy = ovector[2*i+1] - ovector[2*i];
+				found = (char *)malloc((lencpy+1) *sizeof(char));
+				char* full_part = (char*)text + ovector[2*i];
+				memcpy(found, full_part,lencpy);
+				memset(found+lencpy,'\0',1);
+				//printf("%s",found);
+				break;
+			}
         }
+		
+		if (found != NULL) {
+			break;
+		}
         offset = ovector[1];
     }
      pcre_free(re);
     
-    return "";
-    //regfree (& r);
-
+    return found;
 }

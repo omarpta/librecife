@@ -32,7 +32,7 @@
 
 //#define REC_CHROME
 
-enum user_agents {CHROME_LINUX, CHROME_WINDOWS, FIREFOX_LINUX, FIREFOX_WINDOWS, INTERNET_EXPLORER};
+enum user_agents {CHROME_LINUX, CHROME_ANDROID, AVANT_BROWSER_WINDOWS, OPERA_LINUX, INTERNET_EXPLORER, SAFARI_MACOS};
 typedef enum user_agents user_agent;
 
 enum navitate_codes {RECIFE_COMPLETE, RECIFE_ERROR};
@@ -64,6 +64,7 @@ typedef struct {
 	RECUser_agent *agent;
 	RECcontent content;
     struct curl_slist* curl_headers;
+	char *host;
 } REC;
 
 typedef void RECIFE;
