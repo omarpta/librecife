@@ -134,7 +134,31 @@ static char *get_host(const char* url) {
 	}
 }
 
+nvlist *init_rec_headers(nvlist *headers) {
+    headers = nvlist_set(headers,"Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+    headers = nvlist_set(headers,"Connection","keep-alive");
+    return headers;
+}
 
+struct curl_slist* load_rec_headers(nvlist *headers) {
+    //TODO: VEFIFY POSSIBLE USE OF SLIT_DELETE METHOD HERE TO AVOID USELESS MEMORY ALLOCATION
+    nvlist *item;
+    nvlist *next;
+    struct curl_slist* curl_headers = NULL;
+    item = headers;
+    do {
+        next = item->next;
+        char *header_name = (char*) malloc((strlen(item->data->name) + 2) * sizeof(char));
+        strcpy(header_name,item->data->name);
+        strcat(header_name,":");
+        
+        curl_headers = curl_slist_set_value(curl_headers, header_name, item->data->value);
+        
+        item = next;
+    } while (next);
+    
+    return curl_headers;
+}
 
 RECIFE *recife_init(user_agent agent) {
     //#### BEGIN DEBUG SPACE ####
@@ -151,16 +175,15 @@ RECIFE *recife_init(user_agent agent) {
         return NULL;
     
     rec->curl = curl_easy_init();
-    
-    
-	init_rec_content(&rec->content);
+    init_rec_content(&rec->content);
     rec->curl_headers = NULL;
-    
-    rec->curl_headers = curl_slist_set_value(rec->curl_headers, "Accept:", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-    rec->curl_headers = curl_slist_set_value(rec->curl_headers, "Connection:", "keep-alive");
+    rec->headers = init_rec_headers(rec->headers);
+     
+    rec->curl_headers = load_rec_headers(rec->headers);
+
     
     curl_easy_setopt(rec->curl, CURLOPT_USERAGENT, get_user_agent(agent));
-    //curl_easy_setopt(rec->curl, CURLOPT_VERBOSE, 1L);
+    curl_easy_setopt(rec->curl, CURLOPT_VERBOSE, 1L);
     curl_easy_setopt(rec->curl, CURLOPT_TCP_KEEPALIVE, 1L);
     curl_easy_setopt(rec->curl, CURLOPT_SSL_VERIFYPEER, 0);
     curl_easy_setopt(rec->curl, CURLOPT_SSL_VERIFYHOST, 0);
@@ -169,23 +192,35 @@ RECIFE *recife_init(user_agent agent) {
     curl_easy_setopt(rec->curl, CURLOPT_COOKIEJAR, "recife_session_id");
     curl_easy_setopt(rec->curl, CURLOPT_HTTPHEADER, rec->curl_headers);
 		
-    
     return rec;
 
 }
 
 navigate_code recife_navigate(RECIFE *recife, const char* url) {
     REC *rec = get_recife(recife);
-	
+	//TODO: Verify if referer is the host or the url
+    if (rec->referer != NULL) {
+        printf("referer setted\n");
+        char *referer = strdup(rec->host);
+        rec->headers = nvlist_set(rec->headers,"Referer:",referer);
+        nvlist_view(rec->headers);
+    }
+    
 	char *host = get_host(url);
 	rec->host = host;
-	rec->curl_headers = curl_slist_set_value(rec->curl_headers, "Host:", rec->host);
+    rec->headers = nvlist_set(rec->headers,"Host:",rec->host);
+	rec->curl_headers = load_rec_headers(rec->headers);
 	
+    free(rec->content.ptr);
+    init_rec_content(&rec->content);
+    
     curl_easy_setopt(rec->curl, CURLOPT_URL, url);
     rec->curl_res = curl_easy_perform(rec->curl);
     if(rec->curl_res != CURLE_OK) {
 		return RECIFE_ERROR;
     } else {
+        rec->referer = (char*) malloc((strlen(url) + 1) * sizeof(char));
+        strcpy(rec->referer,url);
         return RECIFE_COMPLETE;
     }
 }
@@ -201,9 +236,11 @@ char* recife_get_content(RECIFE *recife) {
 
 void recife_free(RECIFE *recife) {
     REC *rec = get_recife(recife);
-    curl_easy_cleanup(rec->curl);
     curl_slist_free_all(rec->curl_headers);
-	free(rec->content.ptr);
+    curl_easy_cleanup(rec->curl);    
+	nvlist_free_all(rec->headers);
+    free(rec->referer);
+    free(rec->content.ptr);    
 	free(rec->host);
     free(rec);
 

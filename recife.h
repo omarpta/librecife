@@ -51,20 +51,16 @@ typedef struct {
 	char *buttons;
 } RECForm;
 
-typedef struct {
-	char *name;
-	char *version;
-	char *os_name;
-} RECUser_agent;
 
 typedef struct {
 	CURL *curl;
 	CURLcode curl_res;
-	nvlist *headers;
-	RECUser_agent *agent;
-	RECcontent content;
+	char *user_agent;
+    nvlist *headers;
     struct curl_slist* curl_headers;
 	char *host;
+    char *referer;
+    RECcontent content;
 } REC;
 
 typedef void RECIFE;
