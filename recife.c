@@ -27,9 +27,25 @@
 #include "recife_util.h"
 #include <stdlib.h>
 #include <string.h>
+#include <gumbo.h>
+#include <assert.h>
 
+
+typedef struct {
+    char* ptr;
+    size_t len;
+} RECcontent;
         
-
+typedef struct {
+	CURL *curl;
+	CURLcode curl_res;
+	char *user_agent;
+    nvlist *headers;
+    struct curl_slist* curl_headers;
+	char *host;
+    char *referer;
+    RECcontent content;
+} REC;
 
 static void init_rec_content(RECcontent* s)
 {
@@ -134,7 +150,7 @@ static char *get_host(const char* url) {
 	}
 }
 
-nvlist *init_rec_headers(nvlist *headers) {
+static nvlist *init_rec_headers(nvlist *headers) {
     headers = nvlist_set(headers,"Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
     headers = nvlist_set(headers,"Connection","keep-alive");
     return headers;
@@ -190,7 +206,7 @@ RECIFE *recife_init(user_agent agent) {
     curl_easy_setopt(rec->curl, CURLOPT_WRITEFUNCTION, writefunc);
     curl_easy_setopt(rec->curl, CURLOPT_WRITEDATA, &rec->content);
     curl_easy_setopt(rec->curl, CURLOPT_COOKIEJAR, "recife_session_id");
-    curl_easy_setopt(rec->curl, CURLOPT_HTTPHEADER, rec->curl_headers);
+    
 		
     return rec;
 
@@ -202,15 +218,15 @@ navigate_code recife_navigate(RECIFE *recife, const char* url) {
     if (rec->referer != NULL) {
         printf("referer setted\n");
         char *referer = strdup(rec->host);
-        rec->headers = nvlist_set(rec->headers,"Referer:",referer);
+        rec->headers = nvlist_set(rec->headers,"Referer",referer);
         nvlist_view(rec->headers);
     }
     
 	char *host = get_host(url);
 	rec->host = host;
-    rec->headers = nvlist_set(rec->headers,"Host:",rec->host);
+    rec->headers = nvlist_set(rec->headers,"Host",rec->host);
 	rec->curl_headers = load_rec_headers(rec->headers);
-	
+	curl_easy_setopt(rec->curl, CURLOPT_HTTPHEADER, rec->curl_headers);
     free(rec->content.ptr);
     init_rec_content(&rec->content);
     
@@ -243,5 +259,51 @@ void recife_free(RECIFE *recife) {
     free(rec->content.ptr);    
 	free(rec->host);
     free(rec);
+}
 
+void print_all_html(const GumboVector* children, char *name) {
+    //fprintf(stderr,"sons off: %s\n",name);
+    for (int i = 0; i < children->length; ++i) {
+        GumboNode* child = children->data[i];
+        // && child->v.element.tag == GUMBO_TAG_BODY
+        if (child->type == GUMBO_NODE_ELEMENT) {
+            char *tagname =gumbo_normalized_tagname(child->v.element.tag);
+            fprintf(stderr,"%s -> %s\n",name, tagname);
+            if (child->v.element.children.length > 0) {
+                fprintf(stderr,"-sons: %s:\n", tagname);
+                print_all_html(&child->v.element.children, tagname);
+                fprintf(stderr,"-----: %s\n",tagname);
+                //break;
+            }
+        }
+    }
+}
+
+RECForm *recife_form_by_name(RECIFE *recife,char *name) {
+    REC *rec = get_recife(recife);
+    if (rec->content.ptr) {
+/*char *html_source = "<html>"
+	"<head><title>teste</title></head>"
+"<body>"
+"<form name=\"Form1\" method=\"post\" action=\"http://127.0.0.1:7000/teste.html\" id=\"Form1\">"
+"	Login:<input type=\"text\" name=\"txtLogin\" value=\"\"></br>"
+"	Password:<input type=\"text\" name=\"txtPass\" value=\"\"></br>"
+"	<input type=\"submit\" name=\"logar\" value=\"Login\">"
+"</form> "
+"</body>"
+"</html>";*/
+        printf("File Source: %s\n",rec->content.ptr);
+        //GumboOutput* output = gumbo_parse_with_options(&kGumboDefaultOptions, html_source, strlen(html_source));
+        GumboOutput* output = gumbo_parse(rec->content.ptr);
+        const GumboNode* root = output->root;
+        assert(root->type == GUMBO_NODE_ELEMENT);
+        assert(root->v.element.children.length >= 2);
+        //printf("%d\n",root->v.element.children.length);
+
+        //const GumboVector* root_children = ;
+        print_all_html(&root->v.element.children, "html");
+        gumbo_destroy_output(&kGumboDefaultOptions, output);
+    }
+    
+    return  NULL;
 }
