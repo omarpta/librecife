@@ -31,12 +31,53 @@
 #include <nvlist.h> 
 
 typedef struct {
+    char *id;
+    char *name;
+    char *value;
+    input_type type;
+    
+} RECForm_field;
+
+typedef struct {
+    char *name;
 	char *method;
 	char *action;
-	char *fields;
-	char *buttons;
+    
+	RECForm_field *fields;
 } RECForm;
 //#define REC_CHROME
+
+typedef enum {
+    TEXT, 
+    SELECT, 
+    SUBMIT, 
+    TEXTAREA, 
+    PASSWORD, 
+    BUTTON,
+    RADION,
+    CHECKBOX,
+    COLOR,
+    DATE,
+    DATETIME,
+    DATETIME_LOCAL,
+    EMAIL,
+    MONTH,
+    NUMBER,
+    RANGE,
+    SEARCH,
+    TEL,
+    TIME,
+    URL,
+    WEEK,
+} input_type;
+
+
+typedef enum {
+    MULTIPART_FORM_DATA,
+    TEXT_PLAIN,
+    APPLICATION_X_WWW_FORM_URLENCODED
+} form_enc_type;
+
 
 enum user_agents {CHROME_LINUX, CHROME_ANDROID, AVANT_BROWSER_WINDOWS, OPERA_LINUX, INTERNET_EXPLORER, SAFARI_MACOS};
 typedef enum user_agents user_agent;

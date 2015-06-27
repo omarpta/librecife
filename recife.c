@@ -261,14 +261,26 @@ void recife_free(RECIFE *recife) {
     free(rec);
 }
 
+
+char *last_form;
+
 void print_all_html(const GumboVector* children, char *name) {
     //fprintf(stderr,"sons off: %s\n",name);
     for (int i = 0; i < children->length; ++i) {
         GumboNode* child = children->data[i];
         // && child->v.element.tag == GUMBO_TAG_BODY
         if (child->type == GUMBO_NODE_ELEMENT) {
-            char *tagname =gumbo_normalized_tagname(child->v.element.tag);
+            char *tagname =(char*)gumbo_normalized_tagname(child->v.element.tag);
             fprintf(stderr,"%s -> %s\n",name, tagname);
+            if (child->v.element.tag == GUMBO_TAG_FORM) {
+                GumboVector *formAttrs = &child->v.element.attributes;
+                for (int j = 0; j < formAttrs->length;++j) {
+                    GumboAttribute* att = formAttrs->data[j];
+                    printf("Atributo: %s\n",att->name);
+                }   
+            }
+            
+            
             if (child->v.element.children.length > 0) {
                 fprintf(stderr,"-sons: %s:\n", tagname);
                 print_all_html(&child->v.element.children, tagname);
