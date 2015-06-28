@@ -30,22 +30,12 @@
 #include <curl/curl.h>
 #include <nvlist.h> 
 
-typedef struct {
-    char *id;
-    char *name;
-    char *value;
-    input_type type;
-    
-} RECForm_field;
 
-typedef struct {
-    char *name;
-	char *method;
-	char *action;
-    
-	RECForm_field *fields;
-} RECForm;
-//#define REC_CHROME
+typedef enum {
+    MULTIPART_FORM_DATA,
+    TEXT_PLAIN,
+    APPLICATION_X_WWW_FORM_URLENCODED
+} form_enc_type;
 
 typedef enum {
     TEXT, 
@@ -71,12 +61,32 @@ typedef enum {
     WEEK,
 } input_type;
 
+/*
+ * RECForm_field
+ * Linked list struct to store input fields
+ */
+typedef struct recform_field {
+    char *id;
+    char *name;
+    char *value;
+    input_type type;
+    struct recform_field *next;
+    
+} RECForm_field;
 
-typedef enum {
-    MULTIPART_FORM_DATA,
-    TEXT_PLAIN,
-    APPLICATION_X_WWW_FORM_URLENCODED
-} form_enc_type;
+/*
+ * RECForm
+ * Linked list struct to store document forms
+ */
+typedef struct recform {
+    char *name;
+	char *method;
+	char *action;
+    form_enc_type type;
+    
+	RECForm_field *fields;
+    struct recform *next;
+} RECForm;
 
 
 enum user_agents {CHROME_LINUX, CHROME_ANDROID, AVANT_BROWSER_WINDOWS, OPERA_LINUX, INTERNET_EXPLORER, SAFARI_MACOS};
@@ -94,6 +104,8 @@ extern navigate_code recife_navigate(RECIFE *recife, const char* url);
 extern char* recife_get_content(RECIFE *recife);
 
 extern void recife_free(RECIFE *recife);
+
+void process_html_parsing(RECIFE *recife);
 
 extern RECForm *recife_form_by_name(RECIFE *recife, char *name);
 

@@ -45,6 +45,8 @@ typedef struct {
 	char *host;
     char *referer;
     RECcontent content;
+    RECForm *forms;
+    const GumboNode *doc;
 } REC;
 
 static void init_rec_content(RECcontent* s)
@@ -207,9 +209,62 @@ RECIFE *recife_init(user_agent agent) {
     curl_easy_setopt(rec->curl, CURLOPT_WRITEDATA, &rec->content);
     curl_easy_setopt(rec->curl, CURLOPT_COOKIEJAR, "recife_session_id");
     
-		
     return rec;
 
+}
+
+void retrieve_html_forms(RECIFE *recform, const GumboVector* children, char *name) {
+    //fprintf(stderr,"sons off: %s\n",name);
+    RECForm *form = (RECForm*)recform;
+    for (int i = 0; i < children->length; ++i) {
+        GumboNode* child = children->data[i];
+        // && child->v.element.tag == GUMBO_TAG_BODY
+        if (child->type == GUMBO_NODE_ELEMENT) {
+            char *tagname =(char*)gumbo_normalized_tagname(child->v.element.tag);
+            fprintf(stderr,"%s -> %s\n",name, tagname);
+            if (child->v.element.tag == GUMBO_TAG_FORM) {
+                if (!form) {
+                    form = (RECForm*) malloc(sizeof(RECForm));
+                    GumboVector *formAttrs = &child->v.element.attributes;
+                    for (int j = 0; j < formAttrs->length;++j) {
+                        GumboAttribute* att = formAttrs->data[j];
+                        printf("Atributo: %s\n",att->name);
+                    }
+                }
+            } else if (child->v.element.tag == GUMBO_TAG_INPUT) {
+                
+            }
+            
+            
+            
+            if (child->v.element.children.length > 0) {
+                fprintf(stderr,"-sons: %s:\n", tagname);
+                retrieve_html_forms(form,&child->v.element.children, tagname);
+                fprintf(stderr,"-----: %s\n",tagname);
+            }
+        }
+    }
+}
+
+void process_html_parsing(RECIFE *recife) {
+    REC *rec = get_recife(recife);
+    if (rec->content.ptr) {
+        //GumboOutput* output = gumbo_parse_with_options(&kGumboDefaultOptions, html_source, strlen(html_source));
+        
+        GumboOutput* output = gumbo_parse(rec->content.ptr);
+        rec->doc = (GumboNode*)malloc(sizeof(GumboNode));
+        
+        rec->doc = output->root;
+        if (rec->doc->type == GUMBO_NODE_ELEMENT) {
+            if (rec->doc->v.element.children.length > 0) {
+                retrieve_html_forms(rec->forms,&rec->doc->v.element.children, "HTML");
+            }
+        }
+        gumbo_destroy_output(&kGumboDefaultOptions, output);
+        
+        
+        
+    }
 }
 
 navigate_code recife_navigate(RECIFE *recife, const char* url) {
@@ -237,6 +292,9 @@ navigate_code recife_navigate(RECIFE *recife, const char* url) {
     } else {
         rec->referer = (char*) malloc((strlen(url) + 1) * sizeof(char));
         strcpy(rec->referer,url);
+        
+        process_html_parsing(rec);
+        
         return RECIFE_COMPLETE;
     }
 }
@@ -262,60 +320,10 @@ void recife_free(RECIFE *recife) {
 }
 
 
-char *last_form;
-
-void print_all_html(const GumboVector* children, char *name) {
-    //fprintf(stderr,"sons off: %s\n",name);
-    for (int i = 0; i < children->length; ++i) {
-        GumboNode* child = children->data[i];
-        // && child->v.element.tag == GUMBO_TAG_BODY
-        if (child->type == GUMBO_NODE_ELEMENT) {
-            char *tagname =(char*)gumbo_normalized_tagname(child->v.element.tag);
-            fprintf(stderr,"%s -> %s\n",name, tagname);
-            if (child->v.element.tag == GUMBO_TAG_FORM) {
-                GumboVector *formAttrs = &child->v.element.attributes;
-                for (int j = 0; j < formAttrs->length;++j) {
-                    GumboAttribute* att = formAttrs->data[j];
-                    printf("Atributo: %s\n",att->name);
-                }   
-            }
-            
-            
-            if (child->v.element.children.length > 0) {
-                fprintf(stderr,"-sons: %s:\n", tagname);
-                print_all_html(&child->v.element.children, tagname);
-                fprintf(stderr,"-----: %s\n",tagname);
-                //break;
-            }
-        }
-    }
-}
 
 RECForm *recife_form_by_name(RECIFE *recife,char *name) {
     REC *rec = get_recife(recife);
-    if (rec->content.ptr) {
-/*char *html_source = "<html>"
-	"<head><title>teste</title></head>"
-"<body>"
-"<form name=\"Form1\" method=\"post\" action=\"http://127.0.0.1:7000/teste.html\" id=\"Form1\">"
-"	Login:<input type=\"text\" name=\"txtLogin\" value=\"\"></br>"
-"	Password:<input type=\"text\" name=\"txtPass\" value=\"\"></br>"
-"	<input type=\"submit\" name=\"logar\" value=\"Login\">"
-"</form> "
-"</body>"
-"</html>";*/
-        printf("File Source: %s\n",rec->content.ptr);
-        //GumboOutput* output = gumbo_parse_with_options(&kGumboDefaultOptions, html_source, strlen(html_source));
-        GumboOutput* output = gumbo_parse(rec->content.ptr);
-        const GumboNode* root = output->root;
-        assert(root->type == GUMBO_NODE_ELEMENT);
-        assert(root->v.element.children.length >= 2);
-        //printf("%d\n",root->v.element.children.length);
-
-        //const GumboVector* root_children = ;
-        print_all_html(&root->v.element.children, "html");
-        gumbo_destroy_output(&kGumboDefaultOptions, output);
-    }
+    
     
     return  NULL;
 }
