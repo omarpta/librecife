@@ -11,10 +11,7 @@ static int compile_regex (regex_t * r, const char * regex_text)
     int status = regcomp (r, regex_text, REG_EXTENDED|REG_ICASE);
     if (status != 0) {
 	char error_message[MAX_ERROR_MSG];
-	regerror (status, r, error_message, MAX_ERROR_MSG);
-        //printf ("Regex error compiling '%s': %s\n",
-        //         regex_text, error_message);
-        return 1;
+	regerror (status, r, error_message, MAX_ERROR_MSG);        return 1;
     }
     return 0;
 }
@@ -26,12 +23,8 @@ static int compile_regex (regex_t * r, const char * regex_text)
 
 static int match_regex (regex_t * r, const char * to_match)
 {
-    /* "P" is a pointer into the string which points to the end of the
-       previous match. */
     const char * p = to_match;
-    /* "N_matches" is the maximum number of matches allowed. */
     const int n_matches = 100;
-    /* "M" contains the matches found. */
     regmatch_t m[n_matches];
 
     while (1) {
@@ -77,14 +70,13 @@ char* get_regex_group(const char *text, const char *regex, int group) {
     char *found = NULL;
 
 
-    re = pcre_compile (regex,          /* the pattern */
+    re = pcre_compile (regex,
                        PCRE_MULTILINE,
-                       &error,         /* for error message */
-                       &erroffset,     /* for error offset */
-                       0);             /* use default character tables */
+                       &error,
+                       &erroffset,
+                       0);
     if (!re)
     {
-        //printf("pcre_compile failed (offset: %d), %s\n", erroffset, error);
         return NULL;
     }
 
@@ -92,7 +84,6 @@ char* get_regex_group(const char *text, const char *regex, int group) {
     unsigned int len    = strlen(text);
     while (offset < len && (rc = pcre_exec(re, 0, text, len, offset, 0, ovector, sizeof(ovector))) >= 0)
     {
-        //printf("while\n");
         for(int i = 0; i < rc; ++i)
         {
 			//printf("%2d - %.*s\n",i,ovector[2*i+1] - ovector[2*i],text + ovector[2*i]);
@@ -103,7 +94,6 @@ char* get_regex_group(const char *text, const char *regex, int group) {
 				char* full_part = (char*)text + ovector[2*i];
 				memcpy(found, full_part,lencpy);
 				memset(found+lencpy,'\0',1);
-				//printf("%s",found);
 				break;
 			}
         }
