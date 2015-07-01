@@ -29,6 +29,7 @@
 
 #include <curl/curl.h>
 #include <nvlist.h> 
+#include <gumbo.h>
 
 
 typedef enum {
@@ -108,5 +109,7 @@ extern void recife_free(RECIFE *recife);
 void process_html_parsing(RECIFE *recife);
 
 extern RECForm *recife_form_by_name(RECIFE *recife, char *name);
+
+char * get_tag_attribute(GumboVector *tag_attrs, char *attr_name);
 
 #endif /* HEADER_RECIFE_H */

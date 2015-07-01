@@ -27,7 +27,6 @@
 #include "recife_util.h"
 #include <stdlib.h>
 #include <string.h>
-#include <gumbo.h>
 #include <assert.h>
 
 
@@ -213,6 +212,20 @@ RECIFE *recife_init(user_agent agent) {
 
 }
 
+char * get_tag_attribute(GumboVector *tag_attrs, char *attr_name) {
+	int j;
+	for (j = 0; j < tag_attrs->length;++j) {
+		GumboAttribute* att = tag_attrs->data[j];
+		char *tag_attr_name = strdup(att->name);
+		strupper(tag_attr_name);
+		if (strcmp(tag_attr_name,attr_name) == 0) {
+			return strdup(att->value);
+		}
+	}
+	
+	return NULL;
+}
+
 void retrieve_html_forms(RECIFE *recform, const GumboVector* children, char *name) {
     //fprintf(stderr,"sons off: %s\n",name);
     RECForm *form = (RECForm*)recform;
@@ -221,18 +234,25 @@ void retrieve_html_forms(RECIFE *recform, const GumboVector* children, char *nam
         // && child->v.element.tag == GUMBO_TAG_BODY
         if (child->type == GUMBO_NODE_ELEMENT) {
             char *tagname =(char*)gumbo_normalized_tagname(child->v.element.tag);
-            fprintf(stderr,"%s -> %s\n",name, tagname);
             if (child->v.element.tag == GUMBO_TAG_FORM) {
                 if (!form) {
                     form = (RECForm*) malloc(sizeof(RECForm));
-                    GumboVector *formAttrs = &child->v.element.attributes;
-                    for (int j = 0; j < formAttrs->length;++j) {
-                        GumboAttribute* att = formAttrs->data[j];
-                        printf("Atributo: %s\n",att->name);
-                    }
+					form->name = NULL;
+					GumboVector *form_attrs = &child->v.element.attributes;
+                    char *form_name = get_tag_attribute(form_attrs,"NAME");
+					if (form_name != NULL) {
+						printf("%s\n",form_name);
+						form->name = malloc((strlen(form_name) + 1) * sizeof(char));
+						strcpy(form->name,form_name);
+					}
                 }
             } else if (child->v.element.tag == GUMBO_TAG_INPUT) {
-                
+                if (form != NULL) {
+					printf("Last form name: %s\n",form->name);
+					if (!form->fields) {
+						form->fields = (RECForm_field*) malloc(sizeof(RECForm_field))
+					}
+				}
             }
             
             
@@ -261,9 +281,6 @@ void process_html_parsing(RECIFE *recife) {
             }
         }
         gumbo_destroy_output(&kGumboDefaultOptions, output);
-        
-        
-        
     }
 }
 

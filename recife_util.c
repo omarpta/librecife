@@ -1,8 +1,9 @@
 #include "recife_util.h"
 //remember to remove after debug
-#include <stdio.h>
+//#include <stdio.h>
 #include <pcre.h> 
 #include <string.h>
+#include <ctype.h>
 
 
 static int compile_regex (regex_t * r, const char * regex_text)
@@ -49,13 +50,13 @@ static int match_regex (regex_t * r, const char * to_match)
             start = m[i].rm_so + (p - to_match);
             finish = m[i].rm_eo + (p - to_match);
             if (i == 0) {
-                printf ("$& is ");
+                //printf ("$& is ");
             }
             else {
-                printf ("$%d is ", i);
+                //printf ("$%d is ", i);
             }
-            printf ("'%.*s' (bytes %d:%d)\n", (finish - start),
-                   to_match + start, start, finish);
+            //printf ("'%.*s' (bytes %d:%d)\n", (finish - start),
+            //       to_match + start, start, finish);
         }
         p += m[0].rm_eo;
     }
@@ -83,7 +84,7 @@ char* get_regex_group(const char *text, const char *regex, int group) {
                        0);             /* use default character tables */
     if (!re)
     {
-        printf("pcre_compile failed (offset: %d), %s\n", erroffset, error);
+        //printf("pcre_compile failed (offset: %d), %s\n", erroffset, error);
         return NULL;
     }
 
@@ -115,4 +116,17 @@ char* get_regex_group(const char *text, const char *regex, int group) {
      pcre_free(re);
     
     return found;
+}
+
+void strupper(char *s) {
+	char *p;
+	for (p = s; *p != '\0'; p++) {
+		*p = (char) toupper(*p);
+	}
+}
+void strlower(char *s){
+	char  *p;
+	for (p = s; *p != '\0'; p++) {
+		*p = (char) tolower(*p);
+	}
 }
