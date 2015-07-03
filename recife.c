@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <form.h>
 
 
 typedef struct {
@@ -76,25 +77,24 @@ static size_t writefunc(void* ptr, size_t size, size_t nmemb, RECcontent* s)
 
 static const char *get_user_agent(user_agent agent) {
     switch (agent) {
-		case AVANT_BROWSER_WINDOWS:
+		case RECIFE_AVANT_BROWSER_WINDOWS:
 			return "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0; Trident/4.0; Avant Browser; SLCC1; .NET CLR 2.0.50727; Media Center PC 5.0; .NET CLR 3.0.04506; .NET CLR 3.5.21022; InfoPath.2)";
 			break;
-		case SAFARI_MACOS:
+		case RECIFE_SAFARI_MACOS:
 			return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/7046A194A";
 			break;
-		case OPERA_LINUX:
+		case RECIFE_OPERA_LINUX:
 			return "Opera/9.80 (X11; Linux i686; Ubuntu/14.10) Presto/2.12.388 Version/12.16";
 			break;
-		case CHROME_LINUX:
+		case RECIFE_CHROME_LINUX:
 			return "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36";
 			break;
-		case INTERNET_EXPLORER:
+		case RECIFE_INTERNET_EXPLORER:
 			return "Mozilla/5.0 (compatible, MSIE 11, Windows NT 6.3; Trident/7.0;  rv:11.0) like Gecko";
 			break;
-        case CHROME_ANDROID:
+        case RECIFE_CHROME_ANDROID:
             return "Linux - Mozilla/5.0 (Linux; Android 5.0; LG-D855 Build/LRX21R) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.93 Mobile Safari/537.36";
             break;
-            
         default:
             return NULL;
             break;
@@ -177,7 +177,7 @@ struct curl_slist* load_rec_headers(nvlist *headers) {
     return curl_headers;
 }
 
-RECIFE *recife_init(user_agent agent) {
+RECIFE *recife_init_with_agent(user_agent agent) {
     //#### BEGIN DEBUG SPACE ####
 
 	//exit(0);
@@ -212,59 +212,19 @@ RECIFE *recife_init(user_agent agent) {
 
 }
 
-char * get_tag_attribute(GumboVector *tag_attrs, char *attr_name) {
-	int j;
-	for (j = 0; j < tag_attrs->length;++j) {
-		GumboAttribute* att = tag_attrs->data[j];
-		char *tag_attr_name = strdup(att->name);
-		strupper(tag_attr_name);
-		if (strcmp(tag_attr_name,attr_name) == 0) {
-			return strdup(att->value);
-		}
-	}
-	
-	return NULL;
+RECIFE *recife_init(void) {
+	return recife_init_with_agent(RECIFE_CHROME_LINUX);
 }
 
-void retrieve_html_forms(RECIFE *recform, const GumboVector* children, char *name) {
-    //fprintf(stderr,"sons off: %s\n",name);
-    RECForm *form = (RECForm*)recform;
-    for (int i = 0; i < children->length; ++i) {
-        GumboNode* child = children->data[i];
-        // && child->v.element.tag == GUMBO_TAG_BODY
-        if (child->type == GUMBO_NODE_ELEMENT) {
-            char *tagname =(char*)gumbo_normalized_tagname(child->v.element.tag);
-            if (child->v.element.tag == GUMBO_TAG_FORM) {
-                if (!form) {
-                    form = (RECForm*) malloc(sizeof(RECForm));
-					form->name = NULL;
-					GumboVector *form_attrs = &child->v.element.attributes;
-                    char *form_name = get_tag_attribute(form_attrs,"NAME");
-					if (form_name != NULL) {
-						printf("%s\n",form_name);
-						form->name = malloc((strlen(form_name) + 1) * sizeof(char));
-						strcpy(form->name,form_name);
-					}
-                }
-            } else if (child->v.element.tag == GUMBO_TAG_INPUT) {
-                if (form != NULL) {
-					printf("Last form name: %s\n",form->name);
-					if (!form->fields) {
-						form->fields = (RECForm_field*) malloc(sizeof(RECForm_field))
-					}
-				}
-            }
-            
-            
-            
-            if (child->v.element.children.length > 0) {
-                fprintf(stderr,"-sons: %s:\n", tagname);
-                retrieve_html_forms(form,&child->v.element.children, tagname);
-                fprintf(stderr,"-----: %s\n",tagname);
-            }
-        }
-    }
-}
+
+
+//TODO: Create function to parser forms and create linked list and then create 
+//another function to load inputs for the form
+//Use add_nodup as template
+
+
+
+
 
 void process_html_parsing(RECIFE *recife) {
     REC *rec = get_recife(recife);
@@ -277,7 +237,20 @@ void process_html_parsing(RECIFE *recife) {
         rec->doc = output->root;
         if (rec->doc->type == GUMBO_NODE_ELEMENT) {
             if (rec->doc->v.element.children.length > 0) {
-                retrieve_html_forms(rec->forms,&rec->doc->v.element.children, "HTML");
+                rec->forms = retrieve_html_forms(rec->forms,&rec->doc->v.element.children, "HTML");
+				printf("antes\n");
+				if (rec->forms) {
+					RECForm *item = rec->forms;
+					RECForm *next;
+				
+					do {
+						next = item->next;
+						if (item->name) {
+							printf("FOMULARIO: %s\n",item->name);
+						}
+						item = next;
+					} while(next);
+				}
             }
         }
         gumbo_destroy_output(&kGumboDefaultOptions, output);
@@ -311,6 +284,7 @@ navigate_code recife_navigate(RECIFE *recife, const char* url) {
         strcpy(rec->referer,url);
         
         process_html_parsing(rec);
+		
         
         return RECIFE_COMPLETE;
     }

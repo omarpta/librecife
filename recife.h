@@ -30,67 +30,22 @@
 #include <curl/curl.h>
 #include <nvlist.h> 
 #include <gumbo.h>
+#include "form.h"
 
 
-typedef enum {
-    MULTIPART_FORM_DATA,
-    TEXT_PLAIN,
-    APPLICATION_X_WWW_FORM_URLENCODED
-} form_enc_type;
-
-typedef enum {
-    TEXT, 
-    SELECT, 
-    SUBMIT, 
-    TEXTAREA, 
-    PASSWORD, 
-    BUTTON,
-    RADION,
-    CHECKBOX,
-    COLOR,
-    DATE,
-    DATETIME,
-    DATETIME_LOCAL,
-    EMAIL,
-    MONTH,
-    NUMBER,
-    RANGE,
-    SEARCH,
-    TEL,
-    TIME,
-    URL,
-    WEEK,
-} input_type;
-
-/*
- * RECForm_field
- * Linked list struct to store input fields
- */
-typedef struct recform_field {
-    char *id;
-    char *name;
-    char *value;
-    input_type type;
-    struct recform_field *next;
-    
-} RECForm_field;
-
-/*
- * RECForm
- * Linked list struct to store document forms
- */
-typedef struct recform {
-    char *name;
-	char *method;
-	char *action;
-    form_enc_type type;
-    
-	RECForm_field *fields;
-    struct recform *next;
-} RECForm;
 
 
-enum user_agents {CHROME_LINUX, CHROME_ANDROID, AVANT_BROWSER_WINDOWS, OPERA_LINUX, INTERNET_EXPLORER, SAFARI_MACOS};
+
+
+
+enum user_agents {
+	RECIFE_CHROME_LINUX, 
+	RECIFE_CHROME_ANDROID, 
+	RECIFE_AVANT_BROWSER_WINDOWS, 
+	RECIFE_OPERA_LINUX, 
+	RECIFE_INTERNET_EXPLORER, 
+	RECIFE_SAFARI_MACOS
+};
 typedef enum user_agents user_agent;
 
 enum navitate_codes {RECIFE_COMPLETE, RECIFE_ERROR};
@@ -98,7 +53,9 @@ typedef enum navitate_codes navigate_code;
 
 typedef void RECIFE;
 
-extern RECIFE *recife_init(user_agent agent);
+extern RECIFE *recife_init_with_agent(user_agent agent);
+
+extern RECIFE *recife_init(void);
 
 extern navigate_code recife_navigate(RECIFE *recife, const char* url);
 
