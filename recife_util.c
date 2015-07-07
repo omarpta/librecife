@@ -31,56 +31,56 @@
 #include <string.h>
 #include <ctype.h>
 
-
-static int compile_regex (regex_t * r, const char * regex_text)
-{
-    int status = regcomp (r, regex_text, REG_EXTENDED|REG_ICASE);
-    if (status != 0) {
-	char error_message[MAX_ERROR_MSG];
-	regerror (status, r, error_message, MAX_ERROR_MSG);        return 1;
-    }
-    return 0;
-}
-
-/*
-  Match the string in "to_match" against the compiled regular
-  expression in "r".
- */
-
-static int match_regex (regex_t * r, const char * to_match)
-{
-    const char * p = to_match;
-    const int n_matches = 100;
-    regmatch_t m[n_matches];
-
-    while (1) {
-        int i = 0;
-        int nomatch = regexec (r, p, n_matches, m, 0);
-        if (nomatch) {
-            //printf ("No more matches.\n");
-            return nomatch;
-        }
-        for (i = 0; i < n_matches; i++) {
-            int start;
-            int finish;
-            if (m[i].rm_so == -1) {
-                break;
-            }
-            start = m[i].rm_so + (p - to_match);
-            finish = m[i].rm_eo + (p - to_match);
-            if (i == 0) {
-                //printf ("$& is ");
-            }
-            else {
-                //printf ("$%d is ", i);
-            }
-            //printf ("'%.*s' (bytes %d:%d)\n", (finish - start),
-            //       to_match + start, start, finish);
-        }
-        p += m[0].rm_eo;
-    }
-    return 0;
-}
+//
+//static int compile_regex (regex_t * r, const char * regex_text)
+//{
+//    int status = regcomp (r, regex_text, REG_EXTENDED|REG_ICASE);
+//    if (status != 0) {
+//	char error_message[MAX_ERROR_MSG];
+//	regerror (status, r, error_message, MAX_ERROR_MSG);        return 1;
+//    }
+//    return 0;
+//}
+//
+///*
+//  Match the string in "to_match" against the compiled regular
+//  expression in "r".
+// */
+//
+//static int match_regex (regex_t * r, const char * to_match)
+//{
+//    const char * p = to_match;
+//    const int n_matches = 100;
+//    regmatch_t m[n_matches];
+//
+//    while (1) {
+//        int i = 0;
+//        int nomatch = regexec (r, p, n_matches, m, 0);
+//        if (nomatch) {
+//            //printf ("No more matches.\n");
+//            return nomatch;
+//        }
+//        for (i = 0; i < n_matches; i++) {
+//            int start;
+//            int finish;
+//            if (m[i].rm_so == -1) {
+//                break;
+//            }
+//            start = m[i].rm_so + (p - to_match);
+//            finish = m[i].rm_eo + (p - to_match);
+//            if (i == 0) {
+//                //printf ("$& is ");
+//            }
+//            else {
+//                //printf ("$%d is ", i);
+//            }
+//            //printf ("'%.*s' (bytes %d:%d)\n", (finish - start),
+//            //       to_match + start, start, finish);
+//        }
+//        p += m[0].rm_eo;
+//    }
+//    return 0;
+//}
 
 char* get_regex_group(const char *text, const char *regex, int group) {
     //regex_t r;
@@ -110,7 +110,7 @@ char* get_regex_group(const char *text, const char *regex, int group) {
     unsigned int len    = strlen(text);
     while (offset < len && (rc = pcre_exec(re, 0, text, len, offset, 0, ovector, sizeof(ovector))) >= 0)
     {
-        for(int i = 0; i < rc; ++i)
+        for(i = 0; i < rc; ++i)
         {
 			//printf("%2d - %.*s\n",i,ovector[2*i+1] - ovector[2*i],text + ovector[2*i]);
 			if (i == group) {

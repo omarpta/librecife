@@ -35,9 +35,9 @@
 
 #define MAX_ERROR_MSG 0x1000
 
-static int compile_regex (regex_t * r, const char * regex_text);
-
-static int match_regex (regex_t * r, const char * to_match);
+//static int compile_regex (regex_t * r, const char * regex_text);
+//
+//static int match_regex (regex_t * r, const char * to_match);
 
 char* get_regex_group(const char *text, const char *regex, int group);
 

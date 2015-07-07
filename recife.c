@@ -249,6 +249,9 @@ void process_html_parsing(RECIFE *recife) {
 						next = item->next;
 						if (item->name) {
 							printf("FOMULARIO: %s\n",item->name);
+							printf("\tID: %s\n",item->id);
+							printf("\tAction: %s\n",item->action);
+
 						}
 						item = next;
 					} while(next);
@@ -315,7 +318,7 @@ void recife_free(RECIFE *recife) {
 
 
 RECForm *recife_form_by_name(RECIFE *recife,char *name) {
-    REC *rec = get_recife(recife);
+    //REC *rec = get_recife(recife);
     
     
     return  NULL;
