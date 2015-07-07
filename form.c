@@ -141,16 +141,18 @@ RECForm *form_add_nodup(RECForm *forms, RECForm *form)
 }
 
 RECForm * retrieve_html_forms(RECForm *recform, const GumboVector* children, char *name) {
-    //fprintf(stderr,"sons off: %s\n",name);
+    printf("sons off: %s\n",name);
     //RECForm *form = (RECForm*)recform;
-    for (int i = 0; i < children->length; ++i) {
+	int i;
+    for (i = 0; i < children->length; ++i) {
         GumboNode* child = children->data[i];
         if (child->type == GUMBO_NODE_ELEMENT) {
 			//RECForm * current_form = NULL;
             char *tagname =(char*)gumbo_normalized_tagname(child->v.element.tag);
-			printf("%s",tagname);
+			printf("%s\n",tagname);
+			printf("filho: %d\n",i);
             if (child->v.element.tag == GUMBO_TAG_FORM) {
-				
+            	printf("#é form#\n");
 				RECForm *form = (RECForm*) malloc(sizeof(RECForm));
 				form->id = NULL;
 				form->name = NULL;
@@ -188,8 +190,9 @@ RECForm * retrieve_html_forms(RECForm *recform, const GumboVector* children, cha
                 //fprintf(stderr,"-sons: %s:\n", tagname);
 				
 					//printf("retrieve using form\n ");
-					//recform = retrieve_html_forms(recform,&child->v.element.children, tagname);
-				
+            	printf("tem filhos\n");
+					recform = retrieve_html_forms(recform,&child->v.element.children, tagname);
+				printf("processou filhos\n");
                 //fprintf(stderr,"-----: %s\n",tagname);
             }
         }
