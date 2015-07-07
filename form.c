@@ -148,6 +148,7 @@ RECForm * retrieve_html_forms(RECForm *recform, const GumboVector* children, cha
         if (child->type == GUMBO_NODE_ELEMENT) {
 			//RECForm * current_form = NULL;
             char *tagname =(char*)gumbo_normalized_tagname(child->v.element.tag);
+			printf("%s",tagname);
             if (child->v.element.tag == GUMBO_TAG_FORM) {
 				
 				RECForm *form = (RECForm*) malloc(sizeof(RECForm));
@@ -184,10 +185,10 @@ RECForm * retrieve_html_forms(RECForm *recform, const GumboVector* children, cha
             
             
             if (child->v.element.children.length > 0) {
-                fprintf(stderr,"-sons: %s:\n", tagname);
+                //fprintf(stderr,"-sons: %s:\n", tagname);
 				
-					printf("retrieve using form\n ");
-					recform = retrieve_html_forms(recform,&child->v.element.children, tagname);
+					//printf("retrieve using form\n ");
+					//recform = retrieve_html_forms(recform,&child->v.element.children, tagname);
 				
                 //fprintf(stderr,"-----: %s\n",tagname);
             }

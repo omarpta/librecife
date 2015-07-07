@@ -240,8 +240,10 @@ void process_html_parsing(RECIFE *recife) {
                 rec->forms = retrieve_html_forms(rec->forms,&rec->doc->v.element.children, "HTML");
 				printf("antes\n");
 				if (rec->forms) {
-					RECForm *item = rec->forms;
+					RECForm *item;
 					RECForm *next;
+					
+					item =  rec->forms;
 				
 					do {
 						next = item->next;
