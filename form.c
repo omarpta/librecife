@@ -165,6 +165,7 @@ RECForm * retrieve_html_forms(RECForm *recform, const GumboVector* children, cha
 				recform = form_add_nodup(recform, form);
 				
             } else if (child->v.element.tag == GUMBO_TAG_INPUT) {
+		//teste
                 //if (form != NULL) {
 					//printf("Last form name: %s\n",form->name);
 					//if (!form->fields) {
