@@ -25,8 +25,8 @@
  ***************************************************************************/
 
 #include "recife.h"
-#include "stdlib.h"
-#include "string.h"
+#include <stdlib.h>
+#include <string.h>
 #include "recife_util.h"
 #include "form.h"
 
@@ -44,7 +44,7 @@ char * get_tag_attribute(GumboVector *tag_attrs, char *attr_name) {
 	return NULL;
 }
 
-void retrieve_form_properties(RECForm *form, GumboVector *form_attrs) {
+static void retrieve_form_properties(RECForm *form, GumboVector *form_attrs) {
 	char *form_name = get_tag_attribute(form_attrs,"NAME");
 	if (form_name != NULL) {
 		form->name = malloc((strlen(form_name) + 1) * sizeof(char));
@@ -140,6 +140,8 @@ RECForm *form_add_nodup(RECForm *forms, RECForm *form)
   return forms;
 }
 
+
+
 RECForm * retrieve_html_forms(RECForm *recform, const GumboVector* children, char *name) {
     printf("sons off: %s\n",name);
     //RECForm *form = (RECForm*)recform;
@@ -156,15 +158,18 @@ RECForm * retrieve_html_forms(RECForm *recform, const GumboVector* children, cha
 				RECForm *form = (RECForm*) malloc(sizeof(RECForm));
 				form->id = NULL;
 				form->name = NULL;
-				form->fields = NULL;
 				form->action = NULL;
 				form->type = RECIFE_TEXT_PLAIN;
 				form->method = RECIFE_GET;
+				if (child->v.element.children.length > 0) {
+					form->fields = retrieve_form_fields(form->fields, &child->v.element.children);;
+				}
+
 				GumboVector *form_attrs = &child->v.element.attributes;
 				retrieve_form_properties(form, form_attrs);
 				recform = form_add_nodup(recform, form);
 				
-            } else if (child->v.element.tag == GUMBO_TAG_INPUT) {
+            } //else if (child->v.element.tag == GUMBO_TAG_INPUT) {
 		//teste
                 //if (form != NULL) {
 					//printf("Last form name: %s\n",form->name);
@@ -183,7 +188,7 @@ RECForm * retrieve_html_forms(RECForm *recform, const GumboVector* children, cha
 				//} else {
 				//	printf("form nulo");
 				//}
-            }
+            //}
             
             
             

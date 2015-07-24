@@ -1,8 +1,8 @@
-/*
- * field.c
- *
- *  Created on: Jul 24, 2015
- *      Author: omar
- */
+#include "field.h"
+#include <stdlib.h>
+#include <string.h>
 
 
+static RECForm_field *retrieve_form_fields(RECForm_field *recform_field, const GumboVector* children) {
+
+}
