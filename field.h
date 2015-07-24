@@ -26,6 +26,8 @@
 #ifndef HEADER_RECIFE_FIELD_H
 #define HEADER_RECIFE_FIELD_H
 
+#include <gumbo.h>
+
 typedef enum {
     RECIFE_TEXT,
     RECIFE_SELECT,
