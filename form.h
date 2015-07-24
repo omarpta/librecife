@@ -27,6 +27,8 @@
 #define HEADER_RECIFE_FORM_H
  
 #include <gumbo.h>
+#include "field.h"
+
 typedef enum {
     RECIFE_MULTIPART_FORM_DATA,
     RECIFE_TEXT_PLAIN,
@@ -41,42 +43,6 @@ typedef enum {
 	RECIFE_OPTION,
 } form_method;
 
-typedef enum {
-    RECIFE_TEXT, 
-    RECIFE_SELECT, 
-    RECIFE_SUBMIT, 
-    RECIFE_TEXTAREA, 
-    RECIFE_PASSWORD, 
-    RECIFE_BUTTON,
-    RECIFE_RADION,
-    RECIFE_CHECKBOX,
-    RECIFE_COLOR,
-    RECIFE_DATE,
-    RECIFE_DATETIME,
-    RECIFE_DATETIME_LOCAL,
-    RECIFE_EMAIL,
-    RECIFE_MONTH,
-    RECIFE_NUMBER,
-    RECIFE_RANGE,
-    RECIFE_SEARCH,
-    RECIFE_TEL,
-    RECIFE_TIME,
-    RECIFE_URL,
-    RECIFE_WEEK,
-} input_type;
-
-/*
- * RECForm_field
- * Linked list struct to store input fields
- */
-typedef struct recform_field {
-    char *id;
-    char *name;
-    char *value;
-    input_type type;
-    struct recform_field *next;
-    
-} RECForm_field;
 
 /*
  * RECForm

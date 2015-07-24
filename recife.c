@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <form.h>
+#include "form.h"
 
 
 typedef struct {
@@ -269,7 +269,7 @@ navigate_code recife_navigate(RECIFE *recife, const char* url) {
         printf("referer setted\n");
         char *referer = strdup(rec->host);
         rec->headers = nvlist_set(rec->headers,"Referer",referer);
-        nvlist_view(rec->headers);
+        nvlist_view(rec->headers, 0);
     }
     
 	char *host = get_host(url);
