@@ -65,6 +65,6 @@ typedef struct recform_field {
 
 } RECForm_field;
 
-static RECForm_field *retrieve_form_fields(RECForm_field *recform_field, const GumboVector* children);
+RECForm_field *retrieve_form_fields(RECForm_field *recform_field, const GumboVector* children);
 
 #endif /* HEADER_RECIFE_FIELD_H */

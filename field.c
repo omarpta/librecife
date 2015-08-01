@@ -3,6 +3,6 @@
 #include <string.h>
 
 
-static RECForm_field *retrieve_form_fields(RECForm_field *recform_field, const GumboVector* children) {
+RECForm_field *retrieve_form_fields(RECForm_field *recform_field, const GumboVector* children) {
 	return NULL;
 }
