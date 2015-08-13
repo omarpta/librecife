@@ -61,7 +61,7 @@ typedef struct recform {
 
 typedef void RECIFE_FORM;
 
-static void retrieve_form_properties(RECForm *form, GumboVector *form_attrs);
+void retrieve_form_properties(RECForm *form, GumboVector *form_attrs);
 
 
 

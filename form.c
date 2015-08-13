@@ -24,9 +24,10 @@
  *
  ***************************************************************************/
 
-#include "recife.h"
+//#include "recife.h"
 #include <stdlib.h>
 #include <string.h>
+#include <gumbo.h>
 #include "recife_util.h"
 #include "form.h"
 
@@ -44,7 +45,7 @@ char * get_tag_attribute(GumboVector *tag_attrs, char *attr_name) {
 	return NULL;
 }
 
-static void retrieve_form_properties(RECForm *form, GumboVector *form_attrs) {
+void retrieve_form_properties(RECForm *form, GumboVector *form_attrs) {
 	char *form_name = get_tag_attribute(form_attrs,"NAME");
 	if (form_name != NULL) {
 		form->name = malloc((strlen(form_name) + 1) * sizeof(char));
@@ -128,7 +129,9 @@ RECForm *form_add_nodup(RECForm *forms, RECForm *form)
 	strcpy(new_item->action,form->action);
   }
   
-  //new->type = 
+  new_item->method = form->method;
+  new_item->type = form->type;
+
 
   /* if this is the first item, then new_item *is* the list */
   if(!forms)
@@ -151,8 +154,8 @@ RECForm * retrieve_html_forms(RECForm *recform, const GumboVector* children, cha
         if (child->type == GUMBO_NODE_ELEMENT) {
 			//RECForm * current_form = NULL;
             char *tagname =(char*)gumbo_normalized_tagname(child->v.element.tag);
-			printf("%s\n",tagname);
-			printf("filho: %d\n",i);
+			//printf("%s\n",tagname);
+			//printf("filho: %d\n",i);
             if (child->v.element.tag == GUMBO_TAG_FORM) {
             	printf("#é form#\n");
 				RECForm *form = (RECForm*) malloc(sizeof(RECForm));
@@ -169,36 +172,14 @@ RECForm * retrieve_html_forms(RECForm *recform, const GumboVector* children, cha
 				retrieve_form_properties(form, form_attrs);
 				recform = form_add_nodup(recform, form);
 				
-            } //else if (child->v.element.tag == GUMBO_TAG_INPUT) {
-		//teste
-                //if (form != NULL) {
-					//printf("Last form name: %s\n",form->name);
-					//if (!form->fields) {
-						//form->fields = (RECForm_field*) malloc(sizeof(RECForm_field))
-						
-						//if (form) {
-//							RECForm *actual_form;
-//							if (form) {
-//								actual_form = form;
-//							} else {
-//								actual_form = form;
-//							}
-						//}
-					//}
-				//} else {
-				//	printf("form nulo");
-				//}
-            //}
-            
-            
-            
+            }
             if (child->v.element.children.length > 0) {
                 //fprintf(stderr,"-sons: %s:\n", tagname);
 				
 					//printf("retrieve using form\n ");
-            	printf("tem filhos\n");
+            	//printf("tem filhos\n");
 					recform = retrieve_html_forms(recform,&child->v.element.children, tagname);
-				printf("processou filhos\n");
+				//printf("processou filhos\n");
                 //fprintf(stderr,"-----: %s\n",tagname);
             }
         }
