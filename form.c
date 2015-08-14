@@ -164,6 +164,7 @@ RECForm * retrieve_html_forms(RECForm *recform, const GumboVector* children, cha
 				form->action = NULL;
 				form->type = RECIFE_TEXT_PLAIN;
 				form->method = RECIFE_GET;
+				form->fields = NULL;
 				if (child->v.element.children.length > 0) {
 					form->fields = retrieve_form_fields(form->fields, &child->v.element.children);;
 				}
