@@ -28,22 +28,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <gumbo.h>
+#include "gumbo_util.h"
 #include "recife_util.h"
 #include "form.h"
 
-char * get_tag_attribute(GumboVector *tag_attrs, char *attr_name) {
-	int j;
-	for (j = 0; j < tag_attrs->length;++j) {
-		GumboAttribute* att = tag_attrs->data[j];
-		char *tag_attr_name = strdup(att->name);
-		strupper(tag_attr_name);
-		if (strcmp(tag_attr_name,attr_name) == 0) {
-			return strdup(att->value);
-		}
-	}
-	
-	return NULL;
-}
+
 
 void retrieve_form_properties(RECForm *form, GumboVector *form_attrs) {
 	char *form_name = get_tag_attribute(form_attrs,"NAME");

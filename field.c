@@ -2,20 +2,26 @@
 #include <stdio.h>
 #include <string.h>
 #include <gumbo.h>
+#include "gumbo_util.h"
 #include "field.h"
 
 void retrieve_form_field_properties(RECForm_field *form_field, GumboVector *form_field_attrs) {
-	char *form_name = get_tag_attribute(form_field_attrs,"NAME");
-	if (form_name != NULL) {
-		form_field->name = malloc((strlen(form_name) + 1) * sizeof(char));
-		strcpy(form_field->name,form_name);
+	char *form_field_name = get_tag_attribute(form_field_attrs,"NAME");
+	if (form_field_name != NULL) {
+		form_field->name = malloc((strlen(form_field_name) + 1) * sizeof(char));
+		strcpy(form_field->name,form_field_name);
 	}
 
+	char *form_field_id = get_tag_attribute(form_field_attrs,"ID");
+	if (form_field_id != NULL) {
+		form_field->id = malloc((strlen(form_field_id) + 1) * sizeof(char));
+		strcpy(form_field->id,form_field_id);
+	}
 
-	char *form_id = get_tag_attribute(form_field_attrs,"ID");
-	if (form_id != NULL) {
-		form_field->id = malloc((strlen(form_id) + 1) * sizeof(char));
-		strcpy(form_field->id,form_id);
+	char *form_field_value = get_tag_attribute(form_field_attrs,"VALUE");
+	if (form_field_value != NULL) {
+		form_field->value = malloc((strlen(form_field_value) + 1) * sizeof(char));
+		strcpy(form_field->id,form_field_value);
 	}
 }
 

@@ -27,3 +27,16 @@
 #include "gumbo_util.h"
 
 
+char * get_tag_attribute(GumboVector *tag_attrs, char *attr_name) {
+	int j;
+	for (j = 0; j < tag_attrs->length;++j) {
+		GumboAttribute* att = tag_attrs->data[j];
+		char *tag_attr_name = strdup(att->name);
+		strupper(tag_attr_name);
+		if (strcmp(tag_attr_name,attr_name) == 0) {
+			return strdup(att->value);
+		}
+	}
+
+	return NULL;
+}

@@ -26,7 +26,8 @@
 
 #ifndef HEADER_RECIFE_GUMBO_UTIL_H
 #define HEADER_RECIFE_GUMBO_UTIL_H
+#include <gumbo.h>
 
-
+char * get_tag_attribute(GumboVector *tag_attrs, char *attr_name);
 
 #endif /* HEADER_RECIFE_GUMBO_UTIL_H */
