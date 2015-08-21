@@ -11,35 +11,6 @@ void retrieve_form_field_properties(RECForm_field *form_field, GumboVector *form
 		strcpy(form_field->name,form_name);
 	}
 
-	char *form_method = get_tag_attribute(form_field_attrs,"METHOD");
-	if (form_method != NULL) {
-		strupper(form_method);
-		if (strstr(form_method,"POST") != NULL) {
-			form_field->method = RECIFE_POST;
-		} else {
-			form_field->method = RECIFE_GET;
-		}
-	} else {
-		form_field->method = RECIFE_GET;
-	}
-
-	char *form_action = get_tag_attribute(form_field_attrs,"ACTION");
-	if (form_action != NULL) {
-		form_field->action = malloc((strlen(form_action) + 1) * sizeof(char));
-		strcpy(form_field->action,form_action);
-	}
-
-	char *form_enctype = get_tag_attribute(form_field_attrs,"ENCTYPE");
-	if (form_enctype != NULL) {
-		strupper(form_enctype);
-		if (strstr(form_enctype,"APPLICATION/X-WWW-FORM-URLENCODED") != NULL) {
-			form_field->type = RECIFE_APPLICATION_X_WWW_FORM_URLENCODED;
-		} else if (strstr(form_enctype,"MULTIPART/FORM-DATA") != NULL) {
-			form_field->type = RECIFE_MULTIPART_FORM_DATA;
-		} else {
-			form_field->type = RECIFE_TEXT_PLAIN;
-		}
-	}
 
 	char *form_id = get_tag_attribute(form_field_attrs,"ID");
 	if (form_id != NULL) {

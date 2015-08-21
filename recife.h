@@ -69,4 +69,6 @@ extern RECForm *recife_form_by_name(RECIFE *recife, char *name);
 
 char * get_tag_attribute(GumboVector *tag_attrs, char *attr_name);
 
+char *curl_getenv(const char *name);
+
 #endif /* HEADER_RECIFE_H */

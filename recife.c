@@ -30,7 +30,9 @@
 #include <assert.h>
 #include "form.h"
 
-
+char *curl_getenv(const char *name) {
+	return NULL;
+}
 typedef struct {
     char* ptr;
     size_t len;
